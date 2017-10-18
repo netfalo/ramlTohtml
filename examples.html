@@ -1,0 +1,19 @@
+{{ if .parent.examples.length }}
+    <p><strong>{{if .parent.examples.length eq 1}} Example{{else}} Examples{{end}}</strong>:</p>
+    <div class="examples">
+        {{ range $example := .parent.examples }}
+            {{ if $example.displayName or $example.description }}
+                <p>
+                {{ if $example.displayName }}
+                    <strong>{{ $example.displayName }}</strong>:<br />
+                {{end}}
+                {{ if $example.description }}
+                    {{ $example.description }}
+                {{end}}
+                </p>
+            {{end}}
+            <pre><code>{{ .example.value | .escape }}</code></pre>
+        {{end}}
+    </div>
+{{end}}
+ 
