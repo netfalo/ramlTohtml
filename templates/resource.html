@@ -1,41 +1,37 @@
-{{ if .resource.methods or .resource.description and .resource.parentUrl }}
+{{ if or .methods (and .description .parentUrl) }}
   <div class="panel panel-white resource-modal">
     <div class="panel-heading">
       <h4 class="panel-title">
-        <a class="collapsed" data-toggle="collapse" href="#panel_{{ .resource.uniqueId }}">
-          <span class="parent">{{ .resource.parentUrl }}</span>{{ .resource.relativeUri }}
+        <a class="collapsed" data-toggle="collapse" href="#panel_{{ .uniqueId }}">
+          <span class="parent">{{ .parentUrl }}</span>{{ .relativeUri }}
         </a>
 
         <span class="methods">
-          {{ range $method := .resource.methods }}
-            <a href="#{{ .resource.uniqueId }}_{{ $method.method }}"><!-- modal shown by hashchange event -->
-              <span class="badge badge_{{ $method.method }}">{{ $method.method }}{{ if $method.securedBy.length }} <span class="glyphicon glyphicon-lock" title="Authentication required"></span>{{end}}</span>
+          {{ range $method := .methods }}
+            <a href="#{{ .uniqueId }}_{{ .method }}"><!-- modal shown by hashchange event -->
+              <span class="badge badge_{{ .method }}">{{ .method }}{{ if len .securedBy }} <span class="glyphicon glyphicon-lock" title="Authentication required"></span>{{end}}</span>
             </a>
           {{end}}
         </span>
       </h4>
     </div>
 
-    <div id="panel_{{ .resource.uniqueId }}" class="panel-collapse collapse">
+    <div id="panel_{{ .uniqueId }}" class="panel-collapse collapse">
       <div class="panel-body">
-        {{ if .resource.parentUrl }}
-          {{ if .resource.description }}
+        {{ if .parentUrl }}
+          {{ if .description }}
             <div class="resource-description">
-{% markdown %}
-{{ .resource.description }}
-{% endmarkdown %}
+{{ .description }}
             </div>
           {{end}}
         {{end}}
 
         <div class="list-group">
-          {{ range $method := .resource.methods }}
-            <div onclick="window.location.href = '#{{ .resource.uniqueId }}_{{ $method.method }}'" class="list-group-item">
-              <span class="badge badge_{{ $method.method }}">{{ $method.method }}{{ if $method.securedBy.length }} <span class="glyphicon glyphicon-lock" title="Authentication required"></span>{{end}}</span>
+          {{ range $method := .methods }}
+            <div onclick="window.location.href = '#{{ .uniqueId }}_{{ $method.method }}'" class="list-group-item">
+              <span class="badge badge_{{ $method.method }}">{{ $method.method }}{{ if len $method.securedBy }} <span class="glyphicon glyphicon-lock" title="Authentication required"></span>{{end}}</span>
               <div class="method_description">
-{% markdown %}
 {{ $method.description}}
-{% endmarkdown %}
               </div>
               <div class="clearfix"></div>
             </div>
@@ -44,28 +40,26 @@
       </div>
     </div>
 
-    {{ range $method := .resource.methods }}
-      <div class="modal fade" tabindex="0" id="{{ .resource.uniqueId }}_{{ $method.method }}">
+    {{ range $method := .methods }}
+      <div class="modal fade" tabindex="0" id="{{ .uniqueId }}_{{ .method }}">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_{{ $method.method }}">{{ $method.method }}{{ if $method.securedBy.length }} <span class="glyphicon glyphicon-lock" title="Authentication required"></span>{{end}}</span>
-                <span class="parent">{{ .resource.parentUrl }}</span>{{ .resource.relativeUri }}
+                <span class="badge badge_{{ .method }}">{{ .method }}{{ if len .securedBy }} <span class="glyphicon glyphicon-lock" title="Authentication required"></span>{{end}}</span>
+                <span class="parent">{{ .parentUrl }}</span>{{ .relativeUri }}
               </h4>
             </div>
 
             <div class="modal-body">
-              {{ if $method.description }}
+              {{ if .description }}
                 <div class="alert alert-info">
-{% markdown %}
-{{ $method.description}}
-{% endmarkdown %}
+{{ .description}}
                 </div>
               {{end}}
 
-                {{ if $method.securedBy.length }}
+                {{ if len $method.securedBy }}
                 {{ range $securedBy := $method.securedBy }}
                   {{ if $securedBy }}
                     <div class="alert alert-warning">
@@ -81,9 +75,7 @@
                         </ul>
                       {{end}}
                       {{ if $securityScheme.description }}
-{% markdown %}
 {{ $securityScheme.description }}
-{% endmarkdown %}
                       {{end}}
                     </div>
                   {{end}}
@@ -92,39 +84,39 @@
 
               <!-- Nav tabs -->
               <ul class="nav nav-tabs">
-                {{ if $method.allUriParameters.length or $method.queryString or $method.queryParameters or $method.headers or $method.body }}
+                {{ if or (len $method.allUriParameters) (or $method.queryString (or $method.queryParameters (or $method.headers $method.body))) }}
                   <li class="active">
-                    <a href="#{{ .resource.uniqueId }}_{{ $method.method }}_request" data-toggle="tab">Request</a>
+                    <a href="#{{ .uniqueId }}_{{ $method.method }}_request" data-toggle="tab">Request</a>
                   </li>
                 {{end}}
 
                 {{ if $method.responses }}
-                  <li{{if not $method.allUriParameters.length and not $method.queryParameters and not $method.queryString and not $method.headers and not $method.body}}class="active"{{end}}>
-                    <a href="#{{ .resource.uniqueId }}_{{ $method.method }}_response" data-toggle="tab">Response</a>
+                  <li{{if and (not (len $method.allUriParameters)) (and (not $method.queryParameters) (and (not $method.queryString) (and (not $method.headers) (not $method.body))))}}class="active"{{end}}>
+                    <a href="#{{ .uniqueId }}_{{ $method.method }}_response" data-toggle="tab">Response</a>
                   </li>
                 {{end}}
 
-                {{ if $method.securedBy.length }}
+                {{ if len $method.securedBy }}
                   <li>
-                    <a href="#{{ .resource.uniqueId }}_{{ $method.method }}_securedby" data-toggle="tab">Security</a>
+                    <a href="#{{ .uniqueId }}_{{ $method.method }}_securedby" data-toggle="tab">Security</a>
                   </li>
                 {{end}}
               </ul>
 
               <!-- Tab panes -->
               <div class="tab-content">
-                {{ if $method.allUriParameters.length or $method.queryString or $method.queryParameters or $method.headers or $method.body }}
-                  <div class="tab-pane active" id="{{ .resource.uniqueId }}_{{ $method.method }}_request">
-                    {{ if .resource.allUriParameters.length }}
+                {{ if or (len $method.allUriParameters) (or $method.queryString (or $method.queryParameters (or $method.headers $method.body))) }}
+                  <div class="tab-pane active" id="{{ .uniqueId }}_{{ $method.method }}_request">
+                    {{ if len $method.allUriParameters }}
                       <h3>URI Parameters</h3>
                       <ul>
-                        {{ range $item := .resource.allUriParameters }}
+                        {{ range $item := .allUriParameters }}
                         {{template "item" $item }}
                         {{end}}
                       </ul>
                     {{end}}
 
-                    {{ if $method.annotations.length }}
+                    {{ if len $method.annotations }}
                       <h3>Annotations</h3>
                       <ul>
                         {{ range $item := $method.annotations }}
@@ -133,7 +125,7 @@
                       </ul>
                     {{end}}
 
-                    {{ if $method.headers.length }}
+                    {{ if len $method.headers }}
                       <h3>Headers</h3>
                       <ul>
                         {{range $item := $method.headers}}
@@ -142,16 +134,16 @@
                       </ul>
                     {{end}}
 
-                    {{ if $method.queryString and $method.queryString.properties.length }}
+                    {{ if and $method.queryString (len $method.queryString) }}
                       <h3>Query String</h3>
                       <ul>
-                        {{ range $item := $method.queryString.properties }}
+                        {{ range $item := $method.queryString }}
                           {{template "item" $item }}
                         {{end}}
                       </ul>
                     {{end}}
 
-                    {{ if $method.queryParameters.length }}
+                    {{ if len $method.queryParameters }}
                       <h3>Query Parameters</h3>
                       <ul>
                         {{ range $item := $method.queryParameters }}
@@ -168,16 +160,16 @@
                         {{ if $b.type }}
                           {{ if isStandardType $b.type }}
                             {{ if $b.type eq "array" and $b.items }}
-                              <p><strong>Type</strong>: array of {{ if isStandardType(b.items) }}{{ .b.items }}{{else}}{{ .b.items.displayName }}{{end}}</p>
-                            {{ elif b.type === 'union' and b.anyOf.length }}
+                              <p><strong>Type</strong>: array of {{ if isStandardType $b.items }}{{ .b.items }}{{else}}{{ .b.items.displayName }}{{end}}</p>
+                            {{ else if and (eq $b.type "union") (len $b.anyOf) }}
                               <p><strong>Possible types</strong>:
                                 <ul>
-                                  {{ range super in b.anyOf }}
+                                  {{ range $super := $b.anyOf }}
                                     <li>
-                                      <p><strong>{{ .super.displayName }}</strong></p>
+                                      <p><strong>{{ $super.displayName }}</strong></p>
                                       <div class="items">
                                         <ul>
-                                          {{ range $item := super.properties }}
+                                          {{ range $item := $super.properties }}
                                             {{template "item" $item }}
                                           {{end}}
                                         </ul>
@@ -195,95 +187,85 @@
                           {{end}}
                         {{end}}
 
-                        {{ if b.content }}
+                        {{ if $b.content }}
                           <p><strong>Content</strong>:</p>
-                          <pre><code>{{ .b.content | .escape }}</code></pre>
+                          <pre><code>{{ $b.content | .escape }}</code></pre>
                         {{end}}
 
-                        {{ if b.items and b.items.properties }}
-                          {{ if isStandardType(b.items) }}
-                            <p><strong>Items</strong>: {{ .b.items }}</p>
+                        {{ if $b.items and $b.items.properties }}
+                          {{ if isStandardType $b.items }}
+                            <p><strong>Items</strong>: {{ $b.items }}</p>
                           {{end}}
 
-                          {{ if not isStandardType(b.items) }}
-                            <p><strong>Items</strong>: {{ b.items.displayName }}</p>
+                          {{ if not isStandardType $b.items }}
+                            <p><strong>Items</strong>: {{ $b.items.displayName }}</p>
 
-                            {{ if b.items.properties or b.items.examples.length }}
+                            {{ if or $b.items.properties (len $b.items.examples) }}
                               <div class="items">
-                                {{ if b.items.properties }}
+                                {{ if $b.items.properties }}
                                   <ul>
-                                    {{ range $item := b.items.properties }}
+                                    {{ range $item := $b.items.properties }}
                                       {{template "item" $item }}
                                     {{end}}
                                   </ul>
                                 {{end}}
 
                                 {# Request - Array item examples #}
-                                {{ set parent = b.items }}
-                                {{ include "./examples.nunjucks" }}
+                                {{template "examples" $b.items}}
                               </div>
                             {{end}}
                           {{end}}
                         {{end}}
 
-                        {{ if b.properties.length }}
+                        {{ if len $b.properties }}
                           <strong>Properties</strong>
                           <ul>
-                            {{ range $item := b.properties }}
+                            {{ range $item := $b.properties }}
                               {{template "item" $item }}
                             {{end}}
                           </ul>
                         {{end}}
 
                         {# Request - Body examples #}
-                        {{ set parent = b }}
-                        {{ include "./examples.nunjucks" }}
+                        {{ template "examples" $b}}
                       {{end}}
                     {{end}}
                   </div>
                 {{end}}
 
                 {{ if $method.responses }}
-                  <div class="tab-pane{{
-                    if not $method.allUriParameters.length and not $method.queryParameters.length
-                    and not $method.queryString
-                    and not $method.headers.length and not $method.body.length
-                    }} active{{
-                    endif
-                    }}" id="{{ .resource.uniqueId }}_{{ .method.method }}_response">
-                    {{ range response in $method.responses }}
-                      <h2>HTTP status code <a href="http://httpstatus.es/{{ response.code }}" target="_blank">{{ response.code }}</a></h2>
-{% markdown %}
-{{ response.description }}
-{% endmarkdown %}
+                  <div class="tab-pane{{if and (not (len $method.allUriParameters)) (and (not (len $method.queryParameters)) (and (not $method.queryString) (and (not (len $method.headers)) (and (not (len $method.body))))))}} active{{end}}" id="{{ .uniqueId }}_{{ .method }}_response">
+                    {{ range $response := $method.responses }}
+                      <h2>HTTP status code <a href="http://httpstatus.es/{{ $response.code }}" target="_blank">{{ $response.code }}</a></h2>
+{{ $response.description }}
 
-                      {{ if response.headers.length }}
+                      {{ if $response.headers.length }}
                         <h3>Headers</h3>
                         <ul>
-                          {{ range $item := response.headers }}
+                          {{ range $item := $response.headers }}
                             {{template "item" $item }}
                           {{end}}
                         </ul>
                       {{end}}
 
-                      {{ if response.body.length }}
+                      {{ if $response.body.length }}
                         <h3>Body</h3>
-                        {{ range $b :=response.body }}
-                          <p><strong>Media type</strong>: {{ b.key }}</p>
+                        {{ range $b := $response.body }}
+                          <p><strong>Media type</strong>: {{ $b.key }}</p>
 
-                          {{ if b.type }}
-                            {{ if isStandardType(b.type) }}
-                              {{ if b.type === 'array' and b.items }}
-                                <p><strong>Type</strong>: array of {{ if isStandardType(b.items) }}{{ b.items }}{{else}}{{ b.items.displayName }}{{end}}</p>
-                              {{ elif b.type === 'union' and b.anyOf.length }}
+                          {{ if $b.type }}
+                            {{ if isStandardType $b.type }}
+                              {{ if eq $b.type "array" and $b.items }}
+                                <p><strong>Type</strong>: array of {{ if isStandardType $b.items }}{{ $b.items }}{{else}}{{ $b.items.displayName }}{{end}}</p>
+                              {{ else if eq $b.type "union" and $b.anyOf.length }}
                                 <p><strong>Possible types</strong>:
                                   <ul>
-                                    {{ range super in b.anyOf }}
+                                    {{ range $super := $b.anyOf }}
                                       <li>
-                                        <p><strong>{{ super.displayName }}</strong></p>
+                                        <p><strong>{{ $super.displayName }}</strong></p>
                                         <div class="items">
                                           <ul>
-                                            {{ range $item := super.properties }}
+                                            {{ range $item := $super.properties }}
                                               {{template "item" $item }}
                                             {{end}}
                                           </ul>
@@ -293,116 +275,112 @@
                                   </ul>
                                 </p>
                               {{else}}
-                                <p><strong>Type</strong>: {{ b.type }}</p>
+                                <p><strong>Type</strong>: {{ $b.type }}</p>
                               {{end}}
                             {{else}}
                               <p><strong>Type</strong>:</p>
-                              <pre><code>{{ b.type | escape }}</code></pre>
+                              <pre><code>{{ $b.type | .escape }}</code></pre>
                             {{end}}
                           {{end}}
 
-                          {{ if b.content }}
+                          {{ if $b.content }}
                             <p><strong>Content</strong>:</p>
-                            <pre><code>{{ b.content | escape }}</code></pre>
+                            <pre><code>{{ $b.content | .escape }}</code></pre>
                           {{end}}
 
-                          {{ if b.items and b.items.properties }}
-                            {{ if isStandardType(b.items) }}
-                              <p><strong>Items</strong>: {{ b.items }}</p>
+                          {{ if $b.items and $b.items.properties }}
+                            {{ if isStandardType $b.items }}
+                              <p><strong>Items</strong>: {{ $b.items }}</p>
                             {{end}}
 
-                            {{ if not isStandardType(b.items) }}
-                              <p><strong>Items</strong>: {{ b.items.displayName }}</p>
+                            {{ if not isStandardType $b.items }}
+                              <p><strong>Items</strong>: {{ $b.items.displayName }}</p>
 
-                              {{ if b.items.properties or b.items.examples.length }}
+                              {{ if $b.items.properties or $b.items.examples.length }}
                                 <div class="items">
-                                  {{ if b.items.properties }}
+                                  {{ if $b.items.properties }}
                                     <ul>
-                                      {{ range $item := b.items.properties }}
+                                      {{ range $item := $b.items.properties }}
                                         {{template "item" $item }}
                                       {{end}}
                                     </ul>
                                   {{end}}
 
                                   {# Response - Array item examples #}
-                                  {{ set parent = b.items.examples }}
-                                  {{ include "./examples.nunjucks" }}
+                                  {{ template "examples" $b.items.examples}}
                                 </div>
                               {{end}}
                             {{end}}
                           {{end}}
 
-                          {{ if b.properties.length }}
+                          {{ if $b.properties.length }}
                             <strong>Properties</strong>
                             <ul>
-                              {{ range $item := b.properties }}
+                              {{ range $item := $b.properties }}
                                 {{template "item" $item }}
                               {{end}}
                             </ul>
                           {{end}}
 
                           {# Response - Body examples #}
-                          {{ set parent = b }}
-                          {{ include "./examples.nunjucks" }}
+                          {{ template "examples" $b }}
                         {{end}}
                       {{end}}
                     {{end}}
                   </div>
                 {{end}}
 
-                {{ if $method.securedBy.length }}
-                  <div class="tab-pane" id="{{ .resource.uniqueId }}_{{ .method.method }}_securedby">
-                    {{ range securedBy in $method.securedBy }}
-                      {{ set securityScheme = securitySchemes[securedBy.schemeName] }}
-                      <h1>Secured by {{ securityScheme.displayName }}</h1>
+                {{ if len $method.securedBy }}
+                  <div class="tab-pane" id="{{ .uniqueId }}_{{ .method.method }}_securedby">
+                    {{ range $securedBy := $method.securedBy }}
+                      {{ $securityScheme := index .securitySchemes $securedBy.schemeName }}
+                      <h1>Secured by {{ $securityScheme.displayName }}</h1>
 
-                      {{ if securityScheme.describedBy.headers.length }}
+                      {{ if $securityScheme.describedBy.headers.length }}
                         <h3>Headers</h3>
                         <ul>
-                          {{ range $item := securityScheme.describedBy.headers }}
+                          {{ range $item := $securityScheme.describedBy.headers }}
                             {{template "item" $item}}
                           {{end}}
                         </ul>
                       {{end}}
 
-                      {{ if securityScheme.describedBy.queryParameters.length }}
+                      {{ if $securityScheme.describedBy.queryParameters.length }}
                         <h3>Query Parameters</h3>
                         <ul>
-                          {{ range $item := securityScheme.describedBy.queryParameters }}
+                          {{ range $item := $securityScheme.describedBy.queryParameters }}
                             {{template "item" $item}}
                           {{end}}
                         </ul>
                       {{end}}
 
-                      {{ range response in securityScheme.describedBy.responses }}
-                        <h2>HTTP status code <a href="http://httpstatus.es/{{ response.code }}" target="_blank">{{ response.code }}</a></h2>
-{% markdown %}
-{{ response.description }}
-{% endmarkdown %}
-                        {{ if response.headers.length }}
+                      {{ range $response := $securityScheme.describedBy.responses }}
+                        <h2>HTTP status code <a href="http://httpstatus.es/{{ $response.code }}" target="_blank">{{ $response.code }}</a></h2>
+{{ $response.description }}
+                        {{ if $response.headers.length }}
                           <h3>Headers</h3>
                           <ul>
-                            {{ range $item := response.headers }}
-                            {{template "item" $item}}
+                            {{ range $item := $response.headers }}
+                              {{template "item" $item}}
                             {{end}}
                           </ul>
                         {{end}}
 
-                        {{ if response.body.length }}
+                        {{ if $response.body.length }}
                           <h3>Body</h3>
-                          {{ range $b := response.body }}
-                            <p><strong>Media type</strong>: {{ b.key }}</p>
+                          {{ range $b := $response.body }}
+                            <p><strong>Media type</strong>: {{ $b.key }}</p>
 
-                            {{ if b.type }}
-                              {{ if isStandardType(b.type) }}
-                                {{ if b.type === 'array' and b.items }}
-                                  <p><strong>Type</strong>: array of {{ if isStandardType(b.items) }}{{ b.items }}{{else}}{{ b.items.displayName }}{{end}}</p>
-                                {{ elif b.type === 'union' and b.anyOf.length }}
+                            {{ if $b.type }}
+                              {{ if isStandardType $b.type }}
+                                {{ if eq $b.type  "array" and $b.items }}
+                                  <p><strong>Type</strong>: array of {{ if isStandardType $b.items }}{{ $b.items }}{{else}}{{ $b.items.displayName }}{{end}}</p>
+                                {{ else if eq $b.type "union" and $b.anyOf.length }}
                                   <p><strong>Possible types</strong>:
                                     <ul>
-                                      {{ range super in b.anyOf }}
+                                      {{ range $super := $b.anyOf }}
                                         <li>
-                                          <p><strong>{{ super.displayName }}</strong></p>
+                                          <p><strong>{{ $super.displayName }}</strong></p>
                                           <div class="items">
                                             <ul>
                                               {{ range $item := $super.properties }}
@@ -415,40 +393,39 @@
                                     </ul>
                                   </p>
                                 {{else}}
-                                  <p><strong>Type</strong>: {{ b.type }}</p>
+                                  <p><strong>Type</strong>: {{ $b.type }}</p>
                                 {{end}}
                               {{else}}
                                 <p><strong>Type</strong>:</p>
-                                <pre><code>{{ b.type | escape }}</code></pre>
+                                <pre><code>{{ $b.type | .escape }}</code></pre>
                               {{end}}
                             {{end}}
 
-                            {{ if b.content }}
+                            {{ if $b.content }}
                               <p><strong>Content</strong>:</p>
-                              <pre><code>{{ b.content | escape }}</code></pre>
+                              <pre><code>{{ $b.content | .escape }}</code></pre>
                             {{end}}
 
-                            {{ if b.items and b.items.properties }}
-                              {{ if isStandardType(b.items) }}
-                                <p><strong>Items</strong>: {{ b.items }}</p>
+                            {{ if $b.items and $b.items.properties }}
+                              {{ if isStandardType $b.items }}
+                                <p><strong>Items</strong>: {{ $b.items }}</p>
                               {{end}}
 
-                              {{ if not isStandardType(b.items) }}
-                                <p><strong>Items</strong>: {{ b.items.displayName }}</p>
+                              {{ if not isStandardType $b.items }}
+                                <p><strong>Items</strong>: {{ $b.items.displayName }}</p>
 
-                                {{ if b.items.properties or b.items.examples.length }}
+                                {{ if $b.items.properties or $b.items.examples.length }}
                                   <div class="items">
-                                    {{ if b.items.properties }}
+                                    {{ if $b.items.properties }}
                                       <ul>
-                                        {{ range $item := b.items.properties }}
+                                        {{ range $item := $b.items.properties }}
                                         {{template "item" $item}}
                                         {{end}}
                                       </ul>
                                     {{end}}
 
                                     {# Response - Array item examples #}
-                                      {{ $parent := b.items.examples }}
-                                      {{template "examples" $parent}}
+                                      {{template "examples" $b.items.examples}}
                                   </div>
                                 {{end}}
                               {{end}}
@@ -464,8 +441,8 @@
                             {{end}}
 
                             {# Response - Body examples #}
-                            {{ $parent := .b }}
-                            {{template "resource" $resource }}
+                            {{ $parent := $b }}
+                            {{template "examples" $parent }}
                           {{end}}
                         {{end}}
 
@@ -483,6 +460,6 @@
   </div>
 {{end}}
 
-{{range $resource := .resource.resources }}
+{{range $resource := .resources }}
   {{template "resource" $resource }}
 {{end}}

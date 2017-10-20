@@ -7,7 +7,8 @@
 
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
 
@@ -203,32 +204,27 @@
                 {{end}}
               </ul>
             {{end}}
-
             {{ range $chapter := .documentation }}
               <h3 id="{{ $chapter.uniqueId }}"><a href="#{{ $chapter.uniqueId }}">{{ $chapter.title }}</a></h3>
-              {% markdown %}
               {{ $chapter.content }}
-              {% endmarkdown %}
             {{end}}
           </div>
 
-          {{ range $resource := .Resources }}
+          {{ range $resource := .resources }}
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3 id="{{ $resource.uniqueId }}" class="panel-title">{% if resource.displayName %}{{ $resource.displayName}}{% else %}{{ $resource.relativeUri }}{% endif %}</h3>
+                <h3 id="{{ $resource.uniqueId }}" class="panel-title">{{ if $resource.displayName }}{{ $resource.displayName}}{{ else }}{{ $resource.relativeUri }}{{end}}</h3>
               </div>
 
               <div class="panel-body">
-                {% if resource.description %}
+                {{if $resource.description}}
                   <div class="top-resource-description">
-{% markdown %}
 {{ $resource.description }}
-{% endmarkdown %}
                   </div>
-                {% endif %}
+                {{end}}
 
                 <div class="panel-group">
-                  {% template "resource" resource %}
+                  {{template "resource" $resource}}
                 </div>
               </div>
             </div>
@@ -238,8 +234,8 @@
         <div class="col-md-3">
           <div id="sidebar" class="hidden-print affix" role="complementary">
             <ul class="nav nav-pills nav-stacked">
-              {{ range $resource := .Resources }}
-                <li><a href="#{{ $resource.uniqueId}}">{% if resource.displayName %}{{ $resource.displayName }}{% else %}{{ $resource.relativeUri }}{% endif %}</a></li>
+              {{ range $resource := .resources }}
+                <li><a href="#{{ $resource.uniqueId}}">{{ if $resource.displayName }}{{ $resource.displayName }}{{ else }}{{ $resource.relativeUri }}{{end}}</a></li>
                 {{end}}
             </ul>
           </div>

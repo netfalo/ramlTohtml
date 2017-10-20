@@ -1,0 +1,92 @@
+<li>
+  <strong>{{ .key }}</strong>{{ if .type }}:
+
+    {{ if not .structuredValue }}
+      <em>
+        {{ if .required }}required {{end}}
+        (
+        {{ if .enum }}
+          {{ if .enum.length eq 1 }}
+            {{join .enum ", "}}
+          {{else}}
+            one of {{join .enum ", "}}
+          {{end}}
+        {{else}}
+          {{if eq .type "array" }}
+            array of {{ if isStandardType .items }}{{ .items }}{{ else }}{{ .items.displayName }}{{end}}
+          {{ else }}
+            {{ .type }}
+          {{end}}
+        {{end}}
+
+        {{ if or .default (not .default) }} - default: {{ .default }}{{end}}
+        {{ if .repeat }} - repeat: {{ .repeat }}{{end}}
+        {{if eq .type "string" }}
+          {{if .minLength }} - minLength: {{ .minLength }}{{end}}
+          {{if .maxLength }} - maxLength: {{ .maxLength }}{{end}}
+        {{else}}
+          {{if .minimum }} - minimum: {{ .minimum }}{{end}}
+          {{if .maximum }} - maximum: {{ .maximum }}{{end}}
+        {{end}}
+        {{if .pattern }} - pattern: {{ .pattern }}{{end}}
+        )
+      </em>
+    {{end}}
+  {{end}}
+
+<!-- Markdown -->
+{{ .description }}
+<!-- Markdown -->
+
+  {{ if .annotations.length }}
+  <h3>Annotations</h3>
+  <ul>
+    {{ range $item := .annotations }}
+      {{ template "item" $item }}
+    {{end}}
+  </ul>
+  {{end}}
+
+  {{ if and .items .items.properties }}
+    {{ if isStandardType .items }}
+      <p><strong>Items</strong>: {{ .items }}</p>
+    {{end}}
+
+    {{ if not isStandardType .items }}
+      <p><strong>Items</strong>: {{ .items.displayName }}</p>
+
+      {{ if .items.properties or .items.examples.length }}
+        <div class="items">
+          {{ if .items.properties }}
+            <ul>
+              {{ range $item := .items.properties }}
+                {{ template "item" $item }}
+              {{end}}
+            </ul>
+          {{end}}
+
+          {# Sub-item Examples #}
+          {{ $parent := .items }}
+          {% include "./examples.nunjucks" %}
+        </div>
+      {{end}}
+    {{end}}
+  {{end}}
+
+  {{ if .properties }}
+    <ul>
+      {{ range $item := .properties }}
+        {{ template "item" $item }}
+      {{end}}
+    </ul>
+  {{end}}
+
+  {# Item Examples #}
+  
+  {{template "examples" .example}}
+
+  {{ if .structuredValue }}
+    <pre><code>{{ .structuredValue | .dump }}</code></pre>
+  {{end}}
+
+</li>
