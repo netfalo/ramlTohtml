@@ -1,0 +1,76 @@
+{
+	"ImportPath": "github.com/netfalo/raml2html",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "bitbucket.org/pkg/inflect",
+			"Comment": "go.r60-12",
+			"Rev": "8961c3750a47b8c0b3e118d52513b97adf85a7e8"
+		},
+		{
+			"ImportPath": "github.com/GeertJohan/go.rice",
+			"Rev": "c02ca9a983da5807ddf7d796784928f5be4afd09"
+		},
+		{
+			"ImportPath": "github.com/GeertJohan/go.rice/embedded",
+			"Rev": "c02ca9a983da5807ddf7d796784928f5be4afd09"
+		},
+		{
+			"ImportPath": "github.com/Jumpscale/go-raml/raml",
+			"Comment": "raml1.0-rc1-501-g9d5e0e5",
+			"Rev": "9d5e0e5b8e9a659bf0007b4288812ab72c321574"
+		},
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v1.0.3-11-g89742ae",
+			"Rev": "89742aefa4b206dcf400792f3bd35b542998eb3b"
+		},
+		{
+			"ImportPath": "github.com/chuckpreslar/inflect",
+			"Rev": "423e3ac59c611e2d549527ab8c15fb99335d30ba"
+		},
+		{
+			"ImportPath": "github.com/chuckpreslar/inflect/languages",
+			"Rev": "423e3ac59c611e2d549527ab8c15fb99335d30ba"
+		},
+		{
+			"ImportPath": "github.com/chuckpreslar/inflect/types",
+			"Rev": "423e3ac59c611e2d549527ab8c15fb99335d30ba"
+		},
+		{
+			"ImportPath": "github.com/daaku/go.zipexe",
+			"Rev": "a5fe2436ffcb3236e175e5149162b41cd28bd27d"
+		},
+		{
+			"ImportPath": "github.com/gigforks/yaml",
+			"Rev": "3396035bfe07c24995d93599a57cf12f9d1c58e4"
+		},
+		{
+			"ImportPath": "github.com/kardianos/osext",
+			"Rev": "ae77be60afb1dcacde03767a8c37337fad28ac14"
+		},
+		{
+			"ImportPath": "github.com/kr/pretty",
+			"Comment": "go.weekly.2011-12-22-36-gcfb55aa",
+			"Rev": "cfb55aafdaf3ec08f0db22699ab822c50091b1c4"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "7cafcd837844e784b526369c9bce262804aebc60"
+		},
+		{
+			"ImportPath": "github.com/shurcooL/sanitized_anchor_name",
+			"Rev": "86672fcb3f950f35f2e675df2240550f2a50762f"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "8dbc5d05d6edcc104950cc299a1ce6641235bc86"
+		},
+		{
+			"ImportPath": "gopkg.in/russross/blackfriday.v2",
+			"Comment": "v2.0.0",
+			"Rev": "cadec560ec52d93835bf2f15bd794700d3a2473b"
+		}
+	]
+}

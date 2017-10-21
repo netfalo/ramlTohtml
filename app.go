@@ -9,10 +9,11 @@ import "flag"
 import "github.com/Jumpscale/go-raml/raml"
 import "gopkg.in/russross/blackfriday.v2"
 import "github.com/GeertJohan/go.rice"
+import "log"
 
 func check(e error) {
 	if e != nil {
-		panic(e)
+		log.Fatal(e)
 	}
 }
 
